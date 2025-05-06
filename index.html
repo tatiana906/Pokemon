@@ -18,12 +18,27 @@
     .card {
       border: 3px solid #ccc;
       border-radius: 20px;
-      width: 500px;
+      width: 900px;
       padding: 20px;
       color: #fff;
       box-shadow: 0 0 25px #00f7ff;
-      position: relative;
-      transition: background 0.5s ease;
+      background: #222;
+    }
+
+    .card-content {
+      display: flex;
+      flex-direction: row;
+      gap: 30px;
+    }
+
+    .left, .right {
+      flex: 1;
+    }
+
+    .right {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .card img {
@@ -103,31 +118,43 @@
     .stat {
       margin-bottom: 10px;
     }
+
+    @media (max-width: 768px) {
+      .card-content {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 <body>
-  <div id="card" class="card">
-    <p id="numero" class="numero">#000</p>
-    <h1 id="nombre">Nombre</h1>
-    <img id="imagen" src="" alt="Pokemon" />
-    <div class="info">
-      <p><strong>Altura:</strong> <span id="altura"></span> m</p>
-      <p><strong>Peso:</strong> <span id="peso"></span> kg</p>
-    </div>
+  <div class="card">
+    <div class="card-content">
+      <div class="left">
+        <p id="numero" class="numero">#000</p>
+        <h1 id="nombre">Nombre</h1>
+        <img id="imagen" src="" alt="Pokemon" />
+        <div class="info">
+          <p><strong>Altura:</strong> <span id="altura"></span> m</p>
+          <p><strong>Peso:</strong> <span id="peso"></span> kg</p>
+        </div>
 
-    <div class="section">
-      <h3>Tipos del Pokémon</h3>
-      <div id="tipos" class="types"></div>
-    </div>
+        <div class="section">
+          <h3>Tipos del Pokémon</h3>
+          <div id="tipos" class="types"></div>
+        </div>
 
-    <div class="section">
-      <h3>Debilidades del Pokémon</h3>
-      <div id="debilidades" class="weaknesses"></div>
-    </div>
+        <div class="section">
+          <h3>Debilidades del Pokémon</h3>
+          <div id="debilidades" class="weaknesses"></div>
+        </div>
+      </div>
 
-    <div class="section">
-      <h3>Estadísticas</h3>
-      <div id="stats"></div>
+      <div class="right">
+        <div class="section">
+          <h3>Estadísticas</h3>
+          <div id="stats"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -168,12 +195,12 @@
         tiposCont.appendChild(crearEtiqueta(tipo, coloresTipo[tipo]));
       });
 
-      // Color de fondo dinámico basado en el primer tipo
+      // Fondo según tipo principal
       const tipoPrincipal = data.types[0].type.name;
-      const tarjeta = document.getElementById("card");
+      const tarjeta = document.querySelector(".card");
       tarjeta.style.background = `linear-gradient(to bottom right, ${coloresTipo[tipoPrincipal]}, #162447)`;
 
-      // Debilidades del primer tipo
+      // Debilidades
       const debilidadesCont = document.getElementById("debilidades");
       debilidadesCont.innerHTML = "";
       const debilidadRes = await axios.get(`https://pokeapi.co/api/v2/type/${tipoPrincipal}`);
