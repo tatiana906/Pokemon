@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>POKEMON</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-image: url('https://wallpapercave.com/wp/wp10311652.jpg');
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .card {
+      border: 3px solid #ccc;
+      border-radius: 20px;
+      width: 500px;
+      padding: 20px;
+      color: #fff;
+      box-shadow: 0 0 25px #00f7ff;
+      position: relative;
+      transition: background 0.5s ease;
+    }
+
+    .card img {
+      height: 300px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .numero {
+      font-size: 1.4em;
+      font-weight: bold;
+      margin: 0;
+      color: #fffd;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.8em;
+      text-transform: capitalize;
+      font-family: 'algerian';
+      margin: 5px 0 10px 0;
+    }
+
+    .info {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .p {
+      margin: 4px 0;
+      font-family: 'algerian';
+    }
+
+    h3 {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+      font-family: 'algerian';
+    }
+
+    .section {
+      margin-top: 15px;
+    }
+
+    .types,
+    .weaknesses {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 5px;
+    }
+
+    .type,
+    .weakness {
+      padding: 5px 10px;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+
+    .bar {
+      height: 12px;
+      background: #555;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: #00f7ff;
+    }
+
+    .stat {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="card" class="card">
+    <p id="numero" class="numero">#000</p>
+    <h1 id="nombre">Nombre</h1>
+    <img id="imagen" src="" alt="Pokemon" />
+    <div class="info">
+      <p><strong>Altura:</strong> <span id="altura"></span> m</p>
+      <p><strong>Peso:</strong> <span id="peso"></span> kg</p>
+    </div>
+
+    <div class="section">
+      <h3>Tipos del Pokémon</h3>
+      <div id="tipos" class="types"></div>
+    </div>
+
+    <div class="section">
+      <h3>Debilidades del Pokémon</h3>
+      <div id="debilidades" class="weaknesses"></div>
+    </div>
+
+    <div class="section">
+      <h3>Estadísticas</h3>
+      <div id="stats"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    const coloresTipo = {
+      normal: '#A8A77A', fire: '#EE8130', water: '#6390F0', electric: '#F7D02C',
+      grass: '#7AC74C', ice: '#96D9D6', fighting: '#C22E28', poison: '#A33EA1',
+      ground: '#E2BF65', flying: '#A98FF3', psychic: '#F95587', bug: '#A6B91A',
+      rock: '#B6A136', ghost: '#735797', dragon: '#6F35FC', dark: '#705746',
+      steel: '#B7B7CE', fairy: '#D685AD'
+    };
+
+    function crearEtiqueta(texto, color) {
+      const span = document.createElement("span");
+      span.textContent = texto.toUpperCase();
+      span.className = "type";
+      span.style.backgroundColor = color || "#888";
+      return span;
+    }
+
+    async function obtenerPokemon() {
+      const id = Math.floor(Math.random() * 898) + 1;
+      const res = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
+      const data = res.data;
+
+      document.getElementById("nombre").textContent = data.name;
+      document.getElementById("imagen").src = data.sprites.other["official-artwork"].front_default;
+      document.getElementById("numero").textContent = `#${data.id}`;
+      document.getElementById("altura").textContent = (data.height / 10).toFixed(1);
+      document.getElementById("peso").textContent = (data.weight / 10).toFixed(1);
+
+      // Tipos
+      const tiposCont = document.getElementById("tipos");
+      tiposCont.innerHTML = "";
+      data.types.forEach(t => {
+        const tipo = t.type.name;
+        tiposCont.appendChild(crearEtiqueta(tipo, coloresTipo[tipo]));
+      });
+
+      // Color de fondo dinámico basado en el primer tipo
+      const tipoPrincipal = data.types[0].type.name;
+      const tarjeta = document.getElementById("card");
+      tarjeta.style.background = `linear-gradient(to bottom right, ${coloresTipo[tipoPrincipal]}, #162447)`;
+
+      // Debilidades del primer tipo
+      const debilidadesCont = document.getElementById("debilidades");
+      debilidadesCont.innerHTML = "";
+      const debilidadRes = await axios.get(`https://pokeapi.co/api/v2/type/${tipoPrincipal}`);
+      const debilidades = debilidadRes.data.damage_relations.double_damage_from;
+      debilidades.forEach(d => {
+        const tipo = d.name;
+        debilidadesCont.appendChild(crearEtiqueta(tipo, coloresTipo[tipo]));
+      });
+
+      // Estadísticas
+      const statsCont = document.getElementById("stats");
+      statsCont.innerHTML = "";
+      data.stats.forEach(stat => {
+        const div = document.createElement("div");
+        div.className = "stat";
+        const nombre = stat.stat.name.replace("-", " ");
+        const valor = stat.base_stat;
+        div.innerHTML = `
+          <p>${nombre.toUpperCase()}: ${valor}/255</p>
+          <div class="bar"><div class="bar-fill" style="width:${(valor / 255) * 100}%;"></div></div>
+        `;
+        statsCont.appendChild(div);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", obtenerPokemon);
+  </script>
+</body>
+</html>
